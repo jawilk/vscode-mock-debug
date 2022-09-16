@@ -273,6 +273,12 @@ export class SolanaDebugSession extends LoggingDebugSession {
 	}
 
 	protected async variablesRequest(response: DebugProtocol.VariablesResponse, args: DebugProtocol.VariablesArguments, request?: DebugProtocol.VariablesRequest) {
+		// FIXME: This is a quick hack, if we allow both 'named' and 'indexed' filter requests, the info in the UI will be doubled.
+		if (args.filter === "named") {
+			response.success = false;
+			this.sendResponse(response);
+			return;
+		}
 		console.log("variablesRequest to str: ", JSON.stringify(request));
 
 		await this.lldbRun('request_variables', JSON.stringify(request));

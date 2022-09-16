@@ -1,0 +1,11 @@
+{
+  "name": "vscode-lldb-wasm",
+  "version": "1.0.0",
+  "description": "",
+  "main": "lldb.js",
+  "types": "lldb.d.ts",
+  "license": "MIT",
+  "dependencies": {
+    "@types/emscripten": "^1.39.6"
+  }
+}

@@ -1,123 +1,104 @@
 {
-  "name": "mock-debug",
-  "displayName": "Mock Debug",
+  "name": "solana-debug",
+  "displayName": "Solana Debug",
+  "publisher": "bpf-wtf",
   "version": "0.44.1",
-  "publisher": "andreweinand",
-  "description": "Starter extension for developing debug adapters for VS Code.",
-  "author": {
-    "name": "Microsoft Corporation",
-    "email": "aweinand@microsoft.com"
-  },
-  "license": "MIT",
-  "keywords": [
-    "multi-root ready"
-  ],
-  "engines": {
-    "vscode": "^1.49.0"
-  },
-  "icon": "images/mock-debug-icon.png",
-  "categories": [
-    "Debuggers"
-  ],
-  "private": true,
+  "description": "Extension to debug solana transactions by using an lldb wasm build.",  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/Microsoft/vscode-mock-debug.git"
   },
-  "bugs": {
-    "url": "https://github.com/Microsoft/vscode-mock-debug/issues"
+  "engines": {
+    "vscode": "^1.49.0"
   },
+  "categories": [
+    "Debuggers"
+  ],
+  "private": true,
   "scripts": {
-    "vscode:prepublish": "yarn run package-ext && yarn run package-web",
+    "vscode:prepublish": "yarn run package-web",
     "compile": "tsc -p ./",
     "lint": "eslint src --ext ts",
-    "watch": "webpack --watch --devtool nosources-source-map --info-verbosity verbose --config ./build/extension.webpack.config.js",
-    "watch2": "tsc -watch -p ./",
     "pretest": "yarn run compile && yarn run lint",
     "test": "node ./out/test/runTest.js",
     "package": "vsce package",
     "publish": "vsce publish",
-    "package-ext": "webpack --mode production --config ./build/extension.webpack.config.js",
     "compile-web": "webpack --devtool nosources-source-map --config ./build/web-extension.webpack.config.js",
     "watch-web": "webpack --watch --devtool nosources-source-map --info-verbosity verbose --config ./build/web-extension.webpack.config.js",
     "package-web": "webpack --mode production --config ./build/web-extension.webpack.config.js"
   },
   "dependencies": {
     "await-notify": "1.0.1",
-    "vscode-debugadapter": "^1.42.1"
+    "path": "^0.12.7",
+    "url": "^0.11.0",
+    "vscode-debugadapter": "^1.42.1",
+    "vscode-lldb-wasm": "file:packages/vscode-lldb-wasm"
   },
   "devDependencies": {
-    "@types/vscode": "^1.49.0",
     "@types/glob": "^7.1.3",
     "@types/mocha": "^8.0.0",
     "@types/node": "^14.0.27",
-    "eslint": "^7.6.0",
+    "@types/vscode": "^1.49.0",
     "@typescript-eslint/eslint-plugin": "^3.8.0",
     "@typescript-eslint/parser": "^3.8.0",
+    "eslint": "^7.6.0",
+    "exports-loader": "^3.1.0",
+    "file-loader": "^6.2.0",
     "glob": "^7.1.6",
     "mocha": "^8.0.1",
-    "typescript": "^3.8.3",
-    "vscode-debugadapter-testsupport": "^1.42.0",
+    "ts-loader": "^9.2.6",
+    "typescript": "4.5.4",
     "vsce": "^1.79.5",
-    "ts-loader": "^8.0.3",
-    "webpack": "^4.44.1",
-    "webpack-cli": "^3.3.12"
+    "vscode-debugadapter-testsupport": "^1.42.0",
+    "webpack": "^5.65.0",
+    "webpack-cli": "^4.9.1"
   },
-  "main": "./dist/ext/extension.js",
   "browser": "./dist/web/extension.js",
   "activationEvents": [
-    "onDebug",
-    "onDebugDynamicConfigurations:mock",
-    "onCommand:extension.mock-debug.getProgramName",
-    "onCommand:extension.mock-debug.runEditorContents",
-    "onCommand:extension.mock-debug.debugEditorContents"
+    "onStartupFinished"
   ],
+  "workspaceTrust": {
+    "request": "never"
+  },
   "contributes": {
     "menus": {
       "editor/title": [
         {
-          "command": "extension.mock-debug.runEditorContents",
-          "when": "resourceLangId == markdown",
+          "command": "extension.solana-debug.runEditorContents",
+          "when": "resourceLangId == rust",
           "group": "1_run@10"
         },
         {
-          "command": "extension.mock-debug.debugEditorContents",
-          "when": "resourceLangId == markdown",
+          "command": "extension.solana-debug.debugEditorContents",
+          "when": "resourceLangId == rust",
           "group": "1_run@20"
-        }
-      ],
-      "debug/variables/context": [
-        {
-          "command": "extension.mock-debug.toggleFormatting",
-          "when": "debugConfigurationType == 'mock' && debugProtocolVariableMenuContext == 'simple'"
         }
       ]
     },
     "commands": [
       {
-        "command": "extension.mock-debug.debugEditorContents",
+        "command": "extension.solana-debug.debugEditorContents",
         "title": "Debug File",
         "icon": "$(debug-alt)"
       },
       {
-        "command": "extension.mock-debug.runEditorContents",
+        "command": "extension.solana-debug.runEditorContents",
         "title": "Run File",
         "icon": "$(play)"
-      },
-      {
-        "command": "extension.mock-debug.toggleFormatting",
-        "title": "Toggle between decimal and hex formatting"
       }
     ],
     "breakpoints": [
       {
-        "language": "markdown"
+        "language": "rust"
       }
     ],
     "debuggers": [
       {
-        "type": "mock",
-        "label": "Mock Debug",
+        "type": "solana",
+        "languages": [
+          "rust"
+        ],
+        "label": "Solana Debug",
         "program": "./out/debugAdapter.js",
         "runtime": "node",
         "configurationAttributes": {
@@ -146,28 +127,28 @@
         },
         "initialConfigurations": [
           {
-            "type": "mock",
+            "type": "solana",
             "request": "launch",
             "name": "Ask for file name",
-            "program": "${workspaceFolder}/${command:AskForProgramName}",
+            "program": "${file}",
             "stopOnEntry": true
           }
         ],
         "configurationSnippets": [
           {
-            "label": "Mock Debug: Launch",
+            "label": "Solana Debug: Launch",
             "description": "A new configuration for 'debugging' a user selected markdown file.",
             "body": {
-              "type": "mock",
+              "type": "solana",
               "request": "launch",
               "name": "Ask for file name",
-              "program": "^\"\\${workspaceFolder}/\\${command:AskForProgramName}\"",
+              "program": "${file}",
               "stopOnEntry": true
             }
           }
         ],
         "variables": {
-          "AskForProgramName": "extension.mock-debug.getProgramName"
+          "AskForProgramName": "extension.solana-debug.getProgramName"
         }
       }
     ]

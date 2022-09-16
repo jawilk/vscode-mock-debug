@@ -10,6 +10,7 @@
 /** @typedef {import('webpack').Configuration} WebpackConfig **/
 
 const path = require('path');
+const webpack = require('webpack');
 
 module.exports = /** @type WebpackConfig */ {
 	context: path.dirname(__dirname),
@@ -25,7 +26,8 @@ module.exports = /** @type WebpackConfig */ {
 		}
 	},
 	module: {
-		rules: [{
+		rules: [
+		{
 			test: /\.ts$/,
 			exclude: /node_modules/,
 			use: [{
@@ -38,11 +40,9 @@ module.exports = /** @type WebpackConfig */ {
 						'declaration': false
 					}
 				}
-			}]
-		}]
-	},
-	externals: {
-		'vscode': 'commonjs vscode', // ignored because it doesn't exist
+			}],
+		},
+	]
 	},
 	performance: {
 		hints: false
@@ -50,7 +50,20 @@ module.exports = /** @type WebpackConfig */ {
 	output: {
 		filename: 'extension.js',
 		path: path.join(__dirname, '../dist/web'),
-		libraryTarget: 'commonjs'
+		libraryTarget: 'commonjs',
 	},
-	devtool: 'source-map'
+	plugins: [
+		new webpack.IgnorePlugin({
+			resourceRegExp: /lldb\.wasm$/
+		}),
+		new webpack.ProvidePlugin({
+			process: 'process/browser', // provide a shim for the global `process` variable
+		}),
+		new webpack.ProvidePlugin({
+            Buffer: ['buffer', 'Buffer'],
+        }),
+	],
+	externals: {
+		'vscode': 'commonjs vscode', // ignored because it doesn't exist
+	},
 };

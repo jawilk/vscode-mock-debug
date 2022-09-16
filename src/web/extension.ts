@@ -3,10 +3,11 @@
  *--------------------------------------------------------*/
 
 import * as vscode from 'vscode';
-import { activateMockDebug } from '../activateMockDebug';
+import { activateSolanaDebug } from '../activateSolanaDebug';
 
 export function activate(context: vscode.ExtensionContext) {
-	activateMockDebug(context);
+	vscode.window.showInformationMessage('Running as web extension');
+	activateSolanaDebug(context);
 }
 
 export function deactivate() {

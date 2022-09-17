@@ -293,6 +293,7 @@ export class SolanaDebugSession extends LoggingDebugSession {
 	protected async nextRequest(response: DebugProtocol.NextResponse, args: DebugProtocol.NextArguments) {
 		console.log("ADAPTER nextRequest");
 		await this._runtime.next();
+		console.log("ADAPTER AFTER nextRequest");
 		this.sendResponse(response);
 	}
 
@@ -338,7 +339,7 @@ export class SolanaDebugSession extends LoggingDebugSession {
         console.log("request.length+1: ", request.length+1);
         let numBytesWritten = await this._runtime.lldb.stringToUTF8(request, rxPtr, request.length+1);
         console.log("numBytesWritten: ", numBytesWritten);
-        const txPtr = await this._runtime.lldb.ccall(funcName, 'number', ['number'], [rxPtr]);
+        const txPtr = await this._runtime.lldb.ccall(funcName, 'number', ['number'], [rxPtr], {async: true});
 console.log("AFTER lldb call vscode");
         const responseStr = await this._runtime.lldb.UTF8ToString(txPtr);
         let responseJSON = JSON.parse(responseStr);

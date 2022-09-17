@@ -107,14 +107,14 @@ export class SolanaRuntime extends EventEmitter {
 		console.log("initLLDB after write FILE");
 		  
 		// Create target
-		await this.lldb.ccall('create_target', null, ['string'], ['executable.so']);
-		await this.lldb.ccall('execute_command', null, ['string'], ['target list']);
+		await this.lldb.ccall('create_target', null, ['string'], ['executable.so'], {async: true});
+		await this.lldb.ccall('execute_command', null, ['string'], ['target list'], {async: true});
 
 
         console.log("initLLDB after create TARGET");
 
         // Connect to remote debugger
-		await this.lldb.ccall('execute_command', null, ['string'], ['gdb-remote 9007']);
+		await this.lldb.ccall('execute_command', null, ['string'], ['gdb-remote 9007'], {async: true});
 		console.log("END initLLDB");
 	}
 
@@ -132,7 +132,7 @@ export class SolanaRuntime extends EventEmitter {
 	public async continue() {
 		console.log("RUNTIME CONTINUE");
 
-		await this.lldb.ccall('execute_command', null, ['string'], ['continue']);
+		await this.lldb.ccall('execute_command', null, ['string'], ['continue'], {async: true});
 		this.sendEvent('stopOnBreakpoint');
 	}
 
@@ -141,7 +141,7 @@ export class SolanaRuntime extends EventEmitter {
 	 */
 	 public async next() {
 		console.log("RUNTIME: next");
-		await this.lldb.ccall('request_next', null);
+		await this.lldb.ccall('request_next', null, [], [], {async: true});
 		this.sendEvent('stopOnStep');
 		console.log("END next");
 	}
@@ -151,7 +151,7 @@ export class SolanaRuntime extends EventEmitter {
 	 */
 	public async stepIn() {
 		console.log("RUNTIME: stepIn");
-		await this.lldb.ccall('request_stepIn', null);
+		await this.lldb.ccall('request_stepIn', null, [], [], {async: true});
 		this.sendEvent('stopOnStep');
 		console.log("END stepIn");
 	}
@@ -161,7 +161,7 @@ export class SolanaRuntime extends EventEmitter {
 	 */
 	public async stepOut() {
 		console.log("RUNTIME: stepOut");
-		await this.lldb.ccall('request_stepOut', null);
+		await this.lldb.ccall('request_stepOut', null, [], [], {async: true});
 		this.sendEvent('stopOnStep');
 		console.log("END stepOut");
 	}
@@ -197,7 +197,7 @@ export class SolanaRuntime extends EventEmitter {
 	 */
 	public async stack(startFrame: number, endFrame: number): Promise<IStack> {
         console.log("RUNTIME STACK");
-		const stackTrace = await this.lldb.ccall('get_stack_trace', 'string', [], []);
+		const stackTrace = await this.lldb.ccall('get_stack_trace', 'string', [], [], {async: true});
 		console.log("stackTrace: ", stackTrace);
 		const stackTraceSplit = stackTrace.split(";");
 		
@@ -276,7 +276,7 @@ export class SolanaRuntime extends EventEmitter {
 		}
 		console.log("lldb path (after split): ", lldbPath);
 
-		await this.lldb.ccall('set_breakpoint', null, ['string', 'number'], [lldbPath, line]);
+		await this.lldb.ccall('set_breakpoint', null, ['string', 'number'], [lldbPath, line], {async: true});
 
 		const bp: ISolanaBreakpoint = { verified: false, line, id: this._breakpointId++ };
 		let bps = this._breakPoints.get(path);

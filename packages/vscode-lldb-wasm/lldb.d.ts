@@ -6,6 +6,7 @@ export interface IlldbModule extends EmscriptenModule {
         returnType: string | null,
         argTypes?: string[],
         args?: any[],
+        opts?: Object,
       ): any;
     stringToUTF8(str: string, ptr: number): void;
     UTF8ToString(ptr: number): string;
